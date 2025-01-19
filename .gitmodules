@@ -1,0 +1,12 @@
+[submodule "[MatlabFunctional]"]
+	path = [MatlabFunctional]
+	url = https://github.com/KySpace/MatlabFunctional
+[submodule "[VisualHelpers]"]
+	path = [VisualHelpers]
+	url = https://github.com/KySpace/VisualHelpers
+[submodule "[UltracoldCommons]"]
+	path = [UltracoldCommons]
+	url = https://github.com/KySpace/UltracoldCommons
+[submodule "[TestRunner]"]
+	path = [TestRunner]
+	url = https://github.com/KySpace/TestRunner
