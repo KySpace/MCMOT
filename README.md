@@ -10,7 +10,7 @@ This repo already includes three submodules: `[MatlabFunctional]`, `[UltracoldCo
 ### Transverse Cooling Beams
 ### Coils and Magnetic Field
 ### Spontaneous emission 
-## Thermaldynamics
+## Thermodynamics
 ### Initial velocity distribution
 ### Wall interactions
 ## Statistics
