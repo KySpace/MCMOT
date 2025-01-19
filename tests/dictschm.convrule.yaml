@@ -1,0 +1,21 @@
+# function name of the one default conversion before pipeline, no key needed
+default : "@evalifstring"
+# overwriting conversions
+overwrite : 
+  - path  : root(/\w+({})*)*/boundaries/wallmode
+    funs  : mkescevaluator(["thermal" "reflective" "through" "respawnflow"])
+  - path  : root(/\w+({})*)*/L_params{}/type
+    funs  : mkescevaluator(["eqcross" "eqcross_uni" "push" "retro" "triorth"])
+  - path  : root(/\w+({})*)*/B_params{}/type
+    funs  : mkescevaluator(["cage_antihh_eq_rect" "cage_antihh_bias_rect" "tb_hh_eq_circle" "tb_antihh_eq_circle"])
+  - path  : root(/\w+({})*)*/(mode_B|mode_L)/gridtype
+    funs  : mkescevaluator(["uniform" "bybeams"])
+  - path  : root(/\w+({})*)*/gravity/type
+    funs  : mkescevaluator(["gravity"])
+  - path  : root(/\w+({})*)*/initstate/mode
+    funs  : mkescevaluator(["Prefill" "Stream" "Boundary"])
+  - path  : root(/\w+({})*)*/v_rel_log_rng
+    funs  : ignorefrom(1, @cell2mat)
+pipe : 
+  - path : root(/\w+({})*)*
+    funs : ignorefrom(1, mkreplacer(yaml.Null, {}))

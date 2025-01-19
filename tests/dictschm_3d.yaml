@@ -1,0 +1,54 @@
+Varying :  
+  streamvelnum  : [2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4]
+  coolpower : [15E-3, 20E-3]
+  cooldet : [-12E6, -16E6, -20E6]
+Passive :
+  transition : Cs133D2Constants
+  gmum       : 0.56E10         # Hz / Tesla, for this transition
+  iter_max : 200
+  "n" : 1000
+  dt  : 15E-5*exp(3-streamvelnum)
+  dr  : 1E-3
+  gravconst : 9.8
+  vel_trunc : Inf
+  boundaries : 
+    hw : 0.05
+    hl : 0.05
+    wallmode : "through"
+    T_wall : 300
+    rotation : { roll : 0, pitch : 0, inhori : 30 }
+  tube :
+    r : 0.003
+    range_z : "[1 1] * boundaries.hl"
+  initstate : 
+    mode : "Stream"
+    # Stream parameters
+    rng_delay : "[0.1 0.6]*exp(1-streamvelnum)"
+    vel_trsv : exp(-3)*transition.v_gam
+    vel_long : exp(streamvelnum)*transition.v_gam
+    pos_src : "[0.03 -0.03 0.013]"
+    offset_pos : 0.002
+    # Prefill parameters
+    T : 0  
+  L_params :
+    - { type : "triorth", boundaries : boundaries, power : coolpower, w_0 : 0.02, det : cooldet, z_rel : "[0]"}
+  B_params :
+    - type : "tb_antihh_eq_circle"
+      d_cent_coil : 0.062
+      mag_curr : 160
+      radius : 0.0675
+  coolings : 
+    celltoarray(map_c(@(s) setcoolings(s.type, s.boundaries, s.power, s.w_0, s.det, z_rel=s.z_rel), L_params))
+  magnetic :
+    celltoarray(map_c(@(s) setmagnetic(s.type, s.d_cent_coil, s.mag_curr, radius=s.radius), B_params))
+  gravity : 
+    setgravity(boundaries, gravconst)
+  v_lim : transition.v_rec
+  inter_scatter_rate : 0
+  guard   : const(true)
+  scatter : const(false)
+  collect : const(false)
+  mode_L : { bake : false, gridtype : uniform, sampling : nan }
+  mode_B : { bake : true , gridtype : bybeams, sampling : "[0.1 0.4 0.8 1.2 1.6 2.0]" }
+
+  

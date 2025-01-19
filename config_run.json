@@ -1,0 +1,8 @@
+{
+    "ioconfig.path" : "tests/ioconfig_2d.yaml",
+    "ioconfig.conv.path" : "[TestRunner]/convert/ioconfig.convrule.yaml",
+    "to_idx"   : -1,
+    "from_idx" : 1,
+    "mode" : "debug",
+    "reg_extension" : []
+}

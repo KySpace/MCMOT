@@ -1,0 +1,46 @@
+SavePath : { TestRoot : testrootdir, TestFolder : "[2024.10].DevTest", TestName : "3.TestPrefill.2D.1" }
+Dictionary : { Scheme : "tests/dictschm_3d.yaml", ConvRules : "tests/dictschm.convrule.yaml", 
+               Ordering : ordered, MaxRun : x1}
+General : { TrialRun : false }
+Iterator : 
+  FieldName : simu
+  Constructor : SimuMCMOT
+  ArgsConstr : []
+  Pause : 
+    AddTo : simu.ioupdater
+    Time : 0.0
+Observers :
+Visuals : 
+  - Type : Figure
+    Enabled : true
+    FieldName : pos3d
+    FrameSize : [1200, 720]
+    #Setter : setparticleplotter(simu.boundaries, simu.pos, 0.1, 5, [0,0], 3, 0) 
+    # [-216, 30] [450,16.5] 
+    Setter : setparticleplotter(simu.boundaries, simu.tube, simu.pos, 0.1, 2, [-216, 30], 1.2, 0.03)
+    Updaters :
+      - { Name : pos, ArgsConv : λ.pos  }
+      - { Name : ann, ArgsConv : [λ.iter_now, λ.dt, λ.active, λ.collected] }
+      #- { Name : clr, ArgsConv : "apply(logmagcalc(\"whole\"), λ.vel) - log(λ.transition.v_gam)" }
+      - { Name : clrforce, ArgsConv : [λ.acl]}
+      - { Name : viewrot, ArgsConv : [] }
+      # - { Name : alpha, ArgsConv : "apply(logmagcalc(\"trsv\"), λ.vel) - log(λ.transition.v_gam)" }
+      - { Name : clractive, ArgsConv : λ.active }
+      - { Name : szactivity, ArgsConv : λ.active }
+    UpdateSource : simu
+    AddTo : simu.ioupdater
+VideoWriter : 
+  - Enabled : false
+    ArgsOpts : ["MPEG-4"]
+    FieldName : pos3d_record
+    Title : pos3d_side_zoom
+    UpdateSource : pos3d
+    AddTo : simu.ioupdater
+Saves : 
+  - { SaveSource : simu.exportdata, Enabled : true, AddTo : post, Name : SimuResult } 
+  - { SaveSource :   schemeinfo   , Enabled : true, AddTo : init, Name : SchemeInfo } 
+  - { Figure     :    pos3d       , Enabled : true, AddTo : post, Name : Pos3D      }
+  - { CopyFile   : config_src_filename  , Enabled : true , AddTo : init    } 
+  - { CopyFile   : config_conv_filename , Enabled : true , AddTo : init    } 
+  - { CopyFile   : dict_src_filename    , Enabled : true , AddTo : init    } 
+  - { CopyFile   : dict_conv_filename   , Enabled : true , AddTo : init    } 

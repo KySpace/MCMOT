@@ -1,0 +1,79 @@
+Varying :  
+  z_mask : 
+  - "[1 0 0 0 0]" # one on
+  - "[0 1 0 0 0]"
+  - "[0 0 1 0 0]"
+  - "[0 0 0 1 0]"
+  - "[0 0 0 0 1]"     
+  - "[0 1 1 1 1]" # four on
+  - "[1 0 1 1 1]"
+  - "[1 1 0 1 1]"
+  - "[1 1 1 0 1]"
+  - "[1 1 1 1 0]"
+  - "[1 1 1 1 1]" # all on 
+  refl : [0.75]
+  bias_ud : [0.05]
+  bias_lr : [-0.05]
+  curr_mag : [24]
+  y_off : [0]
+  pwr_sing : [0.024]
+  det   : [-20.2E6]
+Passive :
+  transition : Cs133D2Constants
+  gmum       : 0.56E10         # Hz / Tesla, for this transition
+  iter_max : 40000  
+  dt  : 5E-5
+  dr  : 1E-3
+  gravconst : 0
+  boundaries : 
+    hw : 0.015
+    hl : 0.05
+    wallmode : "thermal"
+    rotation : { roll : 15, pitch : 106.5, inhori : 0 }
+    T_wall : 300
+  "n" : 1E2
+  tube_length : 0.15
+  tube : 
+    r : 0.002
+    start_z : boundaries.hl
+    range_z : "boundaries.hl + tube_length + [0, 0.05]"
+  vel_trunc : 30
+  initstate : 
+    mode : "Prefill"
+    T : 300
+  z_rel : "[-.4 -.2 0 .2 .4 ]"
+  L_params :
+    - { type : "eqcross_uni", boundaries : boundaries, power : pwr_sing, w_0 : 0.01, det : det, xy_rel : "[0, y_off]", z_rel : z_rel(find(z_mask)), refl : refl}
+    #- { type : "push"   , boundaries : boundaries, power : push_power, w_0 : 0.005, det : push_det, z_rel : nan}
+    #- { type : "retro"  , boundaries : boundaries, power : push_power/5, w_0 : 0.01, det : push_det, z_rel : nan}
+  B_params :
+    - type : "cage_antihh_bias_rect"
+      d_cent_coil : 0.03
+      mag_curr : curr_mag
+      hw_coil : "0.045/2"
+      hl_coil : "0.125/2"
+      bias_ud : bias_ud
+      bias_lr : bias_lr
+  coolings : 
+    celltoarray(map_c(@(s) setcoolings(s.type, s.boundaries, s.power, s.w_0, s.det, s.xy_rel, z_rel=s.z_rel, refl=s.refl), L_params))
+  magnetic :
+    celltoarray(map_c(@(s) setmagnetic(s.type, s.d_cent_coil, s.mag_curr, hw_coil=s.hw_coil, hl_coil=s.hl_coil, bias_ud=s.bias_ud, bias_lr=s.bias_lr), B_params))
+  gravity : 
+    setgravity(boundaries, gravconst)
+  v_lim : 0
+  inter_scatter_rate : 0 # Hz
+  mode_B : { bake : false, gridtype : uniform, sampling : nan }
+  mode_L : { bake : true , gridtype : bybeams, sampling : "[0.05 0.15 0.25 0.65 0.85 1]" }
+  guard : "@isinboundortube" # const(true)
+  # none should be scattered now
+  scatter : "@(pos, ~) rand([size(pos,1),1]) < inter_scatter_rate * dt & isinbound(boundaries, pos)"
+  collect : "@(pos, ~) isinendoftube(tube, pos)"
+  # ---- Statistical parameters
+  v_rel_log_rng : [-4, 8]
+  v_rel_log_max : 2
+  v_gam_log     : log(transition.v_gam)
+  v_step        : 0.5
+  num_acc       : 1000
+  num_stat      : floor(iter_max/num_acc)
+  maxdrc        : 1
+  dostat        : MOTStatistics.mkdovelstat()

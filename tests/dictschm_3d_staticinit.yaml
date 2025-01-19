@@ -1,0 +1,54 @@
+Varying :  
+  gravconst  : [0]
+Passive :
+  transition : Cs133D2Constants
+  iter_max : 10000
+  "n" : 10000
+  dt  : 5E-4
+  dr  : 1E-3
+  gravconst : 9.8
+  boundaries : 
+    hw : 0.075
+    hl : 0.075
+    wallmode : "thermal"
+    T_wall : 300
+    rotation : { roll : 0, pitch : 0, inhori : 30 }
+  tube :
+    r : 0.003
+    range_z : "[0.5 1] * boundaries.hl"
+  initstate : 
+    mode : "Prefill"
+    # Stream parameters
+    rng_delay : "[-.01 0.01]"
+    vel_trsv : exp(-3)*transition.v_gam
+    vel_long : exp(1)*transition.v_gam
+    pos_src : "[0 -0.06 0.04]"
+    offset_pos : 0.01
+    # Prefill parameters
+    T : 0
+  L_params :
+    - { type : "triorth", boundaries : boundaries, power : 10E-2, w_0 : 0.03, det : -20E6, z_rel : "[0]"}
+  B_params :
+    - type : "tb_antihh_eq_circle"
+      d_cent_coil : 0.1
+      mag_curr : 180
+      radius : 0.1
+  coolings : 
+    celltoarray(map_c(@(s) setcoolings(s.type, s.boundaries, s.power, s.w_0, s.det, z_rel=s.z_rel), L_params))
+  magnetic :
+    celltoarray(map_c(@(s) setmagnetic(s.type, s.d_cent_coil, s.mag_curr, radius=s.radius), B_params))
+  gravity : 
+    setgravity(boundaries, gravconst)
+  v_lim : transition.v_rec
+  mode_L : { bake : false, gridtype : uniform, sampling : nan }
+  mode_B : { bake : true , gridtype : bybeams, sampling : "[0.1 0.4 0.8 1.2 1.6 2.0]" }
+  # ---- Statistical parameters
+  v_rel_log_rng : [-4, 8]
+  v_gam_log     : log(transition.v_gam)
+  v_step        : 0.5
+  num_acc       : 100
+  num_stat      : floor(iter_max/num_acc)
+  maxdrc        : 30
+  dostat        : MOTStatistics.mkdostat(tube, maxdrc)
+
+  
